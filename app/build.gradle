@@ -56,6 +56,10 @@ android {
             version '3.18.1'
         }
     }
+    android {
+        ndkVersion "25.0.8775105"
+    }
+
 }
 
 dependencies {
