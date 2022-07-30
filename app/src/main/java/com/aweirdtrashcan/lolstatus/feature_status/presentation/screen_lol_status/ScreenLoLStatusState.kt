@@ -5,5 +5,8 @@ import com.aweirdtrashcan.lolstatus.feature_status.domain.model.Maintenance
 
 data class ScreenLoLStatusState(
     val incidents: List<Incident> = emptyList(),
-    val maintenances: List<Maintenance> = emptyList()
+    val maintenances: List<Maintenance> = emptyList(),
+    val shouldShow: Boolean = false,
+    val errorMessage: String? = null,
+    val showError: Boolean = false
 )

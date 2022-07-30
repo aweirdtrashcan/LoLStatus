@@ -5,7 +5,7 @@ data class MaintenanceUpdateDto(
     val created_at: String?,
     val id: Int?,
     val publish: Boolean?,
-    val publish_locations: List<String>,
+    val publish_locations: List<String>?,
     val translations: List<TranslationDto>?,
     val updated_at: String?
 )

@@ -8,23 +8,27 @@ import com.aweirdtrashcan.lolstatus.feature_status.domain.model.enums.Locales
 
 fun TitleDto.toTitle(): Title {
     return Title(
-        content = content,
-        locale = when {
-            locale.lowercase().contains("pt_br") -> Locales.PT_BR
-            locale.lowercase().contains("en_us") -> Locales.EN_US
-            else -> Locales.NULL
-        }
+        content = content ?: "null",
+        locale = locale?.let {
+            when {
+                locale.lowercase().contains("pt_br") -> Locales.PT_BR
+                locale.lowercase().contains("en_us") -> Locales.EN_US
+                else -> Locales.NULL
+            }
+        } ?: Locales.NULL
     )
 }
 
 fun TranslationDto.toTranslation(): Translation {
     return Translation(
-        content = content,
-        locale = when {
-            locale.lowercase().contains("pt_br") -> Locales.PT_BR
-            locale.lowercase().contains("en_us") -> Locales.EN_US
-            else -> Locales.NULL
-        }
+        content = content ?: "null",
+        locale = locale?.let {
+            when {
+                locale.lowercase().contains("pt_br") -> Locales.PT_BR
+                locale.lowercase().contains("en_us") -> Locales.EN_US
+                else -> Locales.NULL
+            }
+        } ?: Locales.NULL
     )
 }
 

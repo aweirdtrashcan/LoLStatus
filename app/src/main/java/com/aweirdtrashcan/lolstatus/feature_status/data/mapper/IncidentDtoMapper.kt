@@ -8,6 +8,6 @@ fun IncidentDto.toIncident(): Incident {
         incident_severity = incident_severity?.toIncidentSeverity(),
         maintenance_status = maintenance_status,
         titles = titles?.map { it.toTitle() } ?: emptyList(),
-        incidentUpdates = incidentUpdates?.map { it.toIncidentUpdate() } ?: emptyList()
+        incidentUpdates = updates?.map { it.toIncidentUpdate() } ?: emptyList()
     )
 }

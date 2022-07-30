@@ -6,6 +6,6 @@ import com.aweirdtrashcan.lolstatus.feature_status.domain.model.enums.IncidentSe
 data class Maintenance(
     val incident_severity: IncidentSeverity?,
     val maintenance_status: String?,
-    val titles: List<Title>,
+    val titles: List<Title> = emptyList(),
     val updates: List<MaintenanceUpdate>?
 )

@@ -9,5 +9,5 @@ data class IncidentDto(
     val platforms: List<String>?,
     val titles: List<TitleDto>?,
     val updated_at: String?,
-    val incidentUpdates: List<IncidentUpdateDto>?
+    val updates: List<IncidentUpdateDto>?
 )

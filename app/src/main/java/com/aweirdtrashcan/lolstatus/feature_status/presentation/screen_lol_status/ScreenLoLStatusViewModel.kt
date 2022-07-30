@@ -14,6 +14,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.launch
+import okio.IOException
 import retrofit2.HttpException
 import javax.inject.Inject
 
@@ -41,18 +42,29 @@ class ScreenLoLStatusViewModel @Inject constructor(
 
     private fun getLolStatus(apiKey: String) {
         viewModelScope.launch {
+            sharedFlow.emit(ScreenLoLStatusEvent.ApiLoading(true))
             try {
                 val response = repository.getLolStatus(apiKey)
                 state = state.copy(
                     incidents = response.incidents,
                     maintenances = response.maintenances,
+                    shouldShow = true
                 )
+                sharedFlow.emit(ScreenLoLStatusEvent.ApiLoading(false))
                 println(state)
                 sharedFlow.emit(ScreenLoLStatusEvent.ApiSuccess)
             } catch (e: HttpException) {
-                Log.e("HTTP ERROR:", e.message!!)
-                sharedFlow.emit(ScreenLoLStatusEvent.ApiError)
+                afterCatch(e.message)
+            } catch (e: IOException) {
+                afterCatch(e.message)
             }
+        }
+    }
+    private fun afterCatch(e: String?) {
+        viewModelScope.launch {
+            state = state.copy(shouldShow = false, showError = true, errorMessage = e)
+            sharedFlow.emit(ScreenLoLStatusEvent.ApiLoading(false))
+            println(e)
         }
     }
 }
