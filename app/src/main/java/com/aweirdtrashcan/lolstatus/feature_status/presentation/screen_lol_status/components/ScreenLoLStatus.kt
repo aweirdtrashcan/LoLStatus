@@ -258,11 +258,10 @@ private fun ShowList(
     backgroundColor: Color = MaterialTheme.colors.background
 ) {
     Card(
-        // Small offset to give space to the ShowListTitle() function
         modifier = Modifier
             .fillMaxWidth()
             .padding(10.dp)
-            .offset(y = 10.dp),
+            .shadow(10.dp, RectangleShape),
         shape = RoundedCornerShape(10.dp),
         backgroundColor = backgroundColor
     ) {
