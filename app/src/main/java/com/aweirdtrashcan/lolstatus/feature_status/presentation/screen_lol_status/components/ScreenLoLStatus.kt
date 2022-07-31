@@ -19,6 +19,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.aweirdtrashcan.lolstatus.feature_status.domain.model.Title
+import com.aweirdtrashcan.lolstatus.feature_status.domain.model.Translation
 import com.aweirdtrashcan.lolstatus.feature_status.domain.model.enums.IncidentSeverity
 import com.aweirdtrashcan.lolstatus.feature_status.domain.model.enums.Locales
 import com.aweirdtrashcan.lolstatus.feature_status.presentation.screen_lol_status.ScreenLoLStatusViewModel
@@ -28,24 +30,13 @@ fun ScreenLoLStatus(
     viewModel: ScreenLoLStatusViewModel = hiltViewModel()
 ) {
 
-    var titleString: String = ""
+    var titleString: String
     var contentString: String = ""
     var theresContentBoolean: Boolean = false
+    var mColor: Color
 
     val state = viewModel.state
-    val context = LocalContext.current
     val activity = LocalContext.current as? Activity
-//    LaunchedEffect(key1 = true) {
-//        viewModel.sharedFlow.collect { event ->
-//            when (event) {
-//                is ScreenLoLStatusEvent.ApiSuccess -> {
-//                    //TODO
-//                }
-//                is ScreenLoLStatusEvent.ApiError -> {
-//                }
-//            }
-//        }
-//    }
 
     Box(
         modifier = Modifier
@@ -73,60 +64,45 @@ fun ScreenLoLStatus(
                         fontWeight = FontWeight.Bold,
                         fontSize = 18
                     )
-                    if (!state.showError) {
-                        if (state.shouldShow) {
-                            if (state.maintenances.isNotEmpty()) {
-                                LazyColumn {
-                                    items(state.maintenances.size) { listIndex ->
-                                        val currContent = state.maintenances[listIndex]
+                    if (!state.showError && state.shouldShow && state.maintenances.isNotEmpty()) {
+                        LazyColumn {
+                            items(state.maintenances.size) { listIndex ->
+                                val currContent = state.maintenances[listIndex]
 
-                                        val color = contentIncidentToColor(
-                                            currContent.incident_severity
-                                        )
+                                val color = contentIncidentToColor(
+                                    currContent.incident_severity
+                                )
 
-                                        if (currContent.titles.isNotEmpty()) {
-                                            for (index in currContent.titles.indices) {
-                                                val title = currContent.titles[index]
-                                                if (title.locale == Locales.PT_BR) {
-                                                    titleString = title.content
+                                titleString = filterTitleByLocation(currContent.titles)
 
-                                                }
-                                                val incidentUpdates = currContent.updates
-                                                if (incidentUpdates != null) {
-                                                    if (incidentUpdates.isNotEmpty()) {
-                                                        theresContentBoolean = true
-                                                        for (thisIncident in incidentUpdates) {
-                                                            for (translation in thisIncident.translations) {
-                                                                if (translation.locale == Locales.PT_BR) {
-                                                                    contentString =
-                                                                        translation.content
-                                                                }
-                                                            }
-                                                        }
-                                                    }
-                                                } else {
-                                                    showToast("MaintenanceUpdate is null", context)
-                                                }
-                                            }
+                                val maintenanceUpdates = currContent.updates
+                                if (maintenanceUpdates != null) {
+                                    if (maintenanceUpdates.isNotEmpty()) {
+                                        theresContentBoolean = true
+                                        for (thisMaintenance in maintenanceUpdates) {
+                                            contentString =
+                                                filterContentByTranslation(thisMaintenance.translations)
                                         }
-                                        ShowList(
-                                            titleString = titleString,
-                                            theresContentBoolean = theresContentBoolean,
-                                            contentString = contentString,
-                                            statusTitle = "Manutenções",
-                                            backgroundColor = color
-                                        )
                                     }
                                 }
-                            } else {
-                                CustomText(
-                                    statusTitle = "Nenhuma Manutenção Reportada!",
-                                    fontWeight = FontWeight.Normal,
-                                    fontSize = 14
+                                ShowList(
+                                    titleString = titleString,
+                                    theresContentBoolean = theresContentBoolean,
+                                    contentString = contentString,
+                                    statusTitle = "Manutenções",
+                                    backgroundColor = color
                                 )
                             }
                         }
+                    } else {
+                        CustomText(
+                            statusTitle = "Nenhuma Manutenção Reportada!",
+                            fontWeight = FontWeight.Normal,
+                            fontSize = 14
+                        )
                     }
+
+
                 }
             }
 
@@ -147,59 +123,43 @@ fun ScreenLoLStatus(
                         fontWeight = FontWeight.Bold,
                         fontSize = 18
                     )
-                    if (!state.showError) {
-                        if (state.shouldShow) {
-                            if (state.incidents.isNotEmpty()) {
-                                LazyColumn {
-                                    items(state.incidents.size) { listIndex ->
-                                        val currContent = state.incidents[listIndex]
 
-                                        val color = contentIncidentToColor(
-                                            currContent.incident_severity
-                                        )
+                    if (state.shouldShow && state.incidents.isNotEmpty() && !state.showError) {
+                        LazyColumn {
+                            items(state.incidents.size) { listIndex ->
+                                val currContent = state.incidents[listIndex]
 
-                                        if (currContent.titles != null) {
-                                            for (index in currContent.titles.indices) {
-                                                val title = currContent.titles[index]
-                                                if (title.locale == Locales.PT_BR) {
-                                                    titleString = title.content
+                                mColor = contentIncidentToColor(
+                                    currContent.incident_severity
+                                )
 
-                                                }
-                                                val incidentUpdates = currContent.incidentUpdates
-                                                if (incidentUpdates != null) {
-                                                    if (incidentUpdates.isNotEmpty()) {
-                                                        theresContentBoolean = true
-                                                        for (thisIncident in incidentUpdates) {
-                                                            for (translation in thisIncident.translations) {
-                                                                if (translation.locale == Locales.PT_BR) {
-                                                                    contentString =
-                                                                        translation.content
-                                                                }
-                                                            }
-                                                        }
-                                                    }
-                                                } else {
-                                                    showToast("IncidentUpdate is null", context)
-                                                }
-                                            }
+                                titleString = filterTitleByLocation(currContent.titles)
+
+                                val incidentUpdates = currContent.incidentUpdates
+                                if (incidentUpdates != null) {
+                                    if (incidentUpdates.isNotEmpty()) {
+                                        theresContentBoolean = true
+                                        for (thisIncident in incidentUpdates) {
+                                            contentString =
+                                                filterContentByTranslation(thisIncident.translations)
                                         }
-                                        ShowList(
-                                            titleString = titleString,
-                                            theresContentBoolean = theresContentBoolean,
-                                            contentString = contentString,
-                                            statusTitle = "Incidentes",
-                                            backgroundColor = color
-                                        )
                                     }
                                 }
-                            } else {
-                                CustomText(
-                                    statusTitle = "Nenhum Incidente Reportado!",
-                                    fontWeight = FontWeight.Normal,
-                                    fontSize = 14
+                                ShowList(
+                                    titleString = titleString,
+                                    theresContentBoolean = theresContentBoolean,
+                                    contentString = contentString,
+                                    statusTitle = "Incidentes",
+                                    backgroundColor = mColor
                                 )
                             }
                         }
+                    } else {
+                        CustomText(
+                            statusTitle = "Nenhum Incidente Reportado!",
+                            fontWeight = FontWeight.Normal,
+                            fontSize = 14
+                        )
                     }
                 }
 
@@ -226,6 +186,28 @@ fun ScreenLoLStatus(
             }
         }
     }
+}
+
+private fun filterTitleByLocation(titles: List<Title>?): String {
+    var contentLang: String = "Nenhuma atualização foi encontrada."
+    if (titles != null) {
+        for (title in titles) {
+            if (title.locale == Locales.PT_BR) {
+                contentLang = title.content
+            }
+        }
+    }
+    return contentLang
+}
+
+private fun filterContentByTranslation(translations: List<Translation>): String {
+    var translationContent: String = ""
+    for (translation in translations) {
+        if (translation.locale == Locales.PT_BR) {
+            translationContent = translation.content
+        }
+    }
+    return translationContent
 }
 
 @Composable
@@ -305,8 +287,4 @@ private fun ShowList(
             }
         }
     }
-}
-
-fun showToast(message: String, context: Context) {
-    Toast.makeText(context, message, Toast.LENGTH_LONG).show()
 }
